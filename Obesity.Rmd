@@ -124,6 +124,8 @@ kable(estadisticas_pob, caption = "Estadísticas Descriptivas") %>%
 
 ```
 Muestreo
+
+p value (aumentar el numero de repeticiones) vs n
 ```{r}
 #MUESTREO
 
@@ -137,13 +139,13 @@ bootstrap_media <- function(data, n_muestra) {
 }
 
 
-# Realizar 1000 repeticiones del muestreo bootstrap para la edad
+# Realizar 100 repeticiones del muestreo bootstrap para la edad
 media_edad_muestra <- replicate(100, bootstrap_media(datos$Age, n_muestra))
 
-# Realizar 1000 repeticiones del muestreo bootstrap para el peso
+# Realizar 100 repeticiones del muestreo bootstrap para el peso
 media_peso_muestra <- replicate(100, bootstrap_media(datos$Weight, n_muestra))
 
-# Realizar 1000 repeticiones del muestreo bootstrap para el imc
+# Realizar 100 repeticiones del muestreo bootstrap para el imc
 media_imc_muestra <- replicate(100, bootstrap_media(datos$IMC, n_muestra))
 
 #OBSERVANDO LA MUESTRA
