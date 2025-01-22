@@ -1,0 +1,308 @@
+---
+title: "Obesity"
+output: html_document
+date: "2025-01-19"
+---
+
+```{r setup, include=TRUE}
+
+#librerias
+library(readr)
+library(ggplot2)
+library(ggpubr)
+library(knitr)
+library(kableExtra)
+
+```
+
+```{r}
+
+#lectura de los datos
+datos <- read_csv("Obesity prediction.csv")
+datos_age <- read_csv("Age Prediction.csv")
+head(datos)
+head(datos_age)
+
+```
+
+```{r}
+
+#graficando la población
+ggplot(datos, aes(x = Age)) +
+  geom_histogram(binwidth = 5, fill = "lightblue", color = "black") +
+  geom_vline(aes(xintercept = mean(Age)), color = "red", linetype = 2) +
+  labs(title = "Histograma de Edades", x = "Edad", y = "Frecuencia")
+
+```
+
+```{r}
+
+ggplot(datos, aes(x = Weight)) +
+  geom_histogram(binwidth = 10, fill = "#69b3a2", color = "black") +
+  geom_vline(aes(xintercept = mean(Weight)), color = "red", linetype = 2) +
+  labs(title = "Distribución de Pesos", x = "Peso (kg)", y = "Número de observaciones") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+
+ggplot(datos, aes(x = IMC)) +
+  geom_histogram(binwidth = 5, fill = "#69b3a2", color = "black") +
+  geom_vline(aes(xintercept = mean(IMC)), color = "red", linetype = 2) +
+  labs(title = "Distribución de IMC", x = "IMC", y = "Número de observaciones") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+```{r}
+
+#Del histograma de IMC parece que la población esta por encima de los valores considerados normales.
+
+# Encontrando la moda de la variable Obesity
+moda_obesidad <- names(which.max(table(datos$Obesity)))
+
+```
+
+
+
+corroborando que la población efectivamente está por encima de los valores de imc considerados normales
+
+
+```{r}
+
+#Estadistica descriptiva
+
+# Media
+media_edad_pob <- round(mean(datos$Age), 2)
+media_peso_pob <- round(mean(datos$Weight), 2)
+media_altura_pob <- round(mean(datos$Height), 2)
+media_imc_pob <- round(mean(datos$IMC), 2)
+
+# Mediana
+mediana_edad_pob <- round(median(datos$Age), 2)
+mediana_peso_pob <- round(median(datos$Weight), 2)
+mediana_altura_pob <- round(median(datos$Height), 2)
+mediana_imc_pob <- round(median(datos$IMC), 2)
+
+# Moda
+moda_edad_pob <- names(which.max(table(datos$Age)))
+moda_peso_pob <- names(which.max(table(datos$Weight)))
+moda_altura_pob <- names(which.max(table(datos$Height)))
+moda_imc_pob <- names(which.max(table(datos$IMC)))
+moda_obesidad_pob <- names(which.max(table(datos$Obesity)))
+
+# Desviación estándar
+sd_edad_pob <- round(sd(datos$Age), 2)
+sd_peso_pob <- round(sd(datos$Weight), 2)
+sd_altura_pob <- round(sd(datos$Height), 2)
+sd_imc_pob <- round(sd(datos$IMC), 2)
+
+
+# Mínimo
+min_edad_pob <- min(datos$Age)
+min_peso_pob <- min(datos$Weight)
+min_altura_pob <- min(datos$Height)
+min_imc_pob <- min(datos$IMC)
+
+# Máximo
+max_edad_pob <- max(datos$Age)
+max_peso_pob <- max(datos$Weight)
+max_altura_pob <- max(datos$Height)
+max_imc_pob <- max(datos$IMC)
+
+# Almacenando la estadistica descriptiva en estadisticas_pob
+estadisticas_pob <- data.frame(
+  Variable = c("Edad", "Peso", "Altura", "Obesity", "IMC"),
+  Media = c(media_edad_pob, media_peso_pob, media_altura_pob, NA, media_imc_pob),
+  Mediana = c(mediana_edad_pob, mediana_peso_pob, mediana_altura_pob, NA, mediana_imc_pob),
+  Moda = c(moda_edad_pob, moda_peso_pob, moda_altura_pob, moda_obesidad_pob, moda_imc_pob),
+  Desviacion_Estandar = c(sd_edad_pob, sd_peso_pob, sd_altura_pob, NA, sd_imc_pob),
+  Minimo = c(min_edad_pob, min_peso_pob, min_altura_pob, NA, min_imc_pob),
+  Maximo = c(max_edad_pob, max_peso_pob, max_altura_pob, NA, max_imc_pob)
+)
+
+# Mostrar la tabla
+kable(estadisticas_pob, caption = "Estadísticas Descriptivas") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+
+```
+
+```{r}
+#MUESTREO
+
+# Tamaño de la muestra
+n_muestra <- 800 
+
+# Función para realizar un muestreo bootstrap y calcular la media
+bootstrap_media <- function(data, n_muestra) {
+  muestra <- sample(data, size = n_muestra, replace = TRUE)
+  return(mean(muestra))
+}
+
+
+# Realizar 1000 repeticiones del muestreo bootstrap para la edad
+media_edad_muestra <- replicate(100, bootstrap_media(datos$Age, n_muestra))
+
+# Realizar 1000 repeticiones del muestreo bootstrap para el peso
+media_peso_muestra <- replicate(100, bootstrap_media(datos$Weight, n_muestra))
+
+# Realizar 1000 repeticiones del muestreo bootstrap para el imc
+media_imc_muestra <- replicate(100, bootstrap_media(datos$IMC, n_muestra))
+
+#OBSERVANDO LA MUESTRA
+
+# Histograma de la distribución bootstrap de la media de edad
+hist(media_edad_muestra, breaks = 30, main = "Distribución Bootstrap de la Media de Edad", xlab = "Media de Edad")
+
+```
+
+```{r}
+
+# Histograma de la distribución bootstrap de la media de peso
+hist(media_peso_muestra, breaks = 30, main = "Distribución Bootstrap de la Media de Peso", xlab = "Media de Peso")
+
+```
+
+```{r}
+
+# Histograma de la distribución bootstrap de la media de imc
+hist(media_imc_muestra, breaks = 30, main = "Distribución Bootstrap de la Media del IMC", xlab = "Media del IMC")
+
+```
+
+```{r}
+
+#Analisis de la muestra
+
+#Se realiza la prueba t de la media de la muestra vs la media de toda la población, se espera que el valor de P no sea significativo si el muestreo es adecuado
+
+# Realizar la prueba t
+t.test(media_imc_muestra, mu = media_imc_pob)
+t.test(media_edad_muestra, mu = media_edad_pob)
+t.test(media_peso_muestra, mu = media_peso_pob)
+```
+
+```{r}
+
+#Obesity vs IMC
+# ANOVA
+obscvsimc_anova <- aov(IMC ~ Obesity, data = datos)
+
+# Prueba de Tukey
+TukeyHSD(obscvsimc_anova)
+
+# Gráfico de caja para visualizar la distribución del IMC por nivel de CALC
+ggplot(datos, aes(x = Obesity, y = IMC)) +
+  geom_boxplot() +
+  labs(x = "Obecidad", y = "IMC")
+  
+```
+
+```{r}
+# ANOVA
+caecvsimc_anova <- aov(IMC ~ CAEC, data = datos)
+
+# Prueba de Tukey
+TukeyHSD(caecvsimc_anova)
+
+# Gráfico de caja para visualizar la distribución del IMC por nivel de CAEC
+ggplot(datos, aes(x = CAEC, y = IMC)) +
+  geom_boxplot() +
+  labs(x = "Consumo de alimentos entre comidas", y = "IMC")
+
+```
+
+```{r}
+
+#consumo de alcohol vs imc
+# ANOVA
+calcvsimc_anova <- aov(IMC ~ CALC, data = datos)
+
+# Prueba de Tukey
+TukeyHSD(calcvsimc_anova)
+
+# Gráfico de caja para visualizar la distribución del IMC por nivel de CALC
+ggplot(datos, aes(x = CALC, y = IMC)) +
+  geom_boxplot() +
+  labs(x = "Consumo de alcohol", y = "IMC")
+  
+```
+  
+```{r}
+
+#Metodo de transporte vs imc
+# ANOVA
+imcvsmtrans_anova <- aov(IMC ~ MTRANS, data = datos)
+
+# Prueba de Tukey
+TukeyHSD(imcvsmtrans_anova)
+
+# Gráfico de caja para visualizar la distribución del IMC por medio de transporte
+ggplot(datos, aes(x = MTRANS, y = IMC)) +
+  geom_boxplot() +
+  labs(x = "Medio de transporte", y = "IMC")
+
+```
+
+
+
+```{r}
+
+# Regresión lineal con múltiples variables
+modelo_regresion <- lm(IMC ~ TUE + Age + Gender, data = datos)
+summary(modelo_regresion)
+
+#Regresión lineal
+
+# Realizar la regresión lineal
+modelo_regresion <- lm(IMC ~ CH2O, data = datos)
+
+# Ver el resumen del modelo
+summary(modelo_regresion)
+
+# Gráfico de dispersión con línea de regresión
+ggplot(datos, aes(x = CH2O, y = IMC)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x = "Consumo diario de agua (CH2O)", y = "IMC", title = "Relación entre CH2O e IMC")
+  
+```
+
+```{r}
+#correlación
+
+#Numero de comidas principales vs imc
+# Calcular la correlación de Pearson
+correlacion_ncp_imc <- cor(datos$NCP, datos$IMC)
+
+# Imprimir el resultado
+print(paste("La correlación entre fcvc e IMC es:", correlacion_ncp_imc))
+
+ggplot(datos, aes(x = NCP, y = IMC)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(x = "Numero de comidas principales", y = "IMC", title = "Relación entre Edad e IMC")
+
+#En el grafico es complicado de observar, quizá por la baja cantidad en cuanto a posibles alimentos y al ruido de los datos generados.
+```
+
+```{r}
+
+#prueba t
+
+# Realizar la prueba t para comparar el IMC entre hombres y mujeres
+genero_prueba_t <- t.test(IMC ~ Gender, data = datos)
+
+# Imprimir el resultado
+print(genero_prueba_t)
+
+# Gráfico de caja para comparar el IMC entre hombres y mujeres
+ggplot(datos, aes(x = Gender, y = IMC)) +
+  geom_boxplot() +
+  labs(x = "Género", y = "IMC")
+
+knitr::opts_chunk$set(echo = TRUE)
+```

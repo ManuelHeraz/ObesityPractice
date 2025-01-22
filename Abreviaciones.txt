@@ -1,0 +1,30 @@
+"Obesity prediction.csv" 
+contiene 17 atributos y 2111 registros. 
+Las columnas incluyen datos demográficos, hábitos alimenticios, condición física y el nivel de obesidad.
+Variables: 
+Demográficas: 
+	"Gender" (Género), 
+	"Age" (Edad), 
+	"Height" (Altura), 
+	"Weight" (Peso).
+Hábitos alimenticios: 
+	"FAVC" (Frecuencia de consumo de alimentos altos en calorías), 
+	"FCVC" (Frecuencia de consumo de vegetales), 
+	"NCP" (Número de comidas principales), 
+	"CAEC" (Consumo de alimentos entre comidas), 
+	"CH2O" (Consumo diario de agua), 
+	"CALC" (Consumo de alcohol) [2].
+Condición física: 
+	"SCC" (Monitoreo del consumo de calorías), 
+	"FAF" (Frecuencia de actividad física), 
+	"TUE" (Tiempo usando dispositivos tecnológicos), 
+	"MTRANS" (Transporte utilizado).
+Variable de clasificación: 
+	"Obesity" (Nivel de Obesidad), que tiene categorías como
+ 		"Insufficient Weight", 
+		"Normal Weight", 
+		"Overweight Level I", 
+		"Overweight Level II", 
+		"Obesity Type I", 
+		"Obesity Type II", 
+		"Obesity Type III"
