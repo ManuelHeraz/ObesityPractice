@@ -3,7 +3,7 @@ title: "Obesity"
 output: html_document
 date: "2025-01-19"
 ---
-
+Librerias
 ```{r setup, include=TRUE}
 
 #librerias
@@ -14,17 +14,16 @@ library(knitr)
 library(kableExtra)
 
 ```
-
+Lectura de datos
 ```{r}
 
 #lectura de los datos
 datos <- read_csv("Obesity prediction.csv")
-datos_age <- read_csv("Age Prediction.csv")
 head(datos)
-head(datos_age)
 
 ```
-
+Graficas de la poblacion
+Edad
 ```{r}
 
 #graficando la población
@@ -34,7 +33,7 @@ ggplot(datos, aes(x = Age)) +
   labs(title = "Histograma de Edades", x = "Edad", y = "Frecuencia")
 
 ```
-
+Peso
 ```{r}
 
 ggplot(datos, aes(x = Weight)) +
@@ -45,7 +44,7 @@ ggplot(datos, aes(x = Weight)) +
   theme(plot.title = element_text(hjust = 0.5))
 
 ```
-
+IMC
 ```{r}
 
 ggplot(datos, aes(x = IMC)) +
@@ -56,7 +55,7 @@ ggplot(datos, aes(x = IMC)) +
   theme(plot.title = element_text(hjust = 0.5))
 
 ```
-
+Obecity
 ```{r}
 
 #Del histograma de IMC parece que la población esta por encima de los valores considerados normales.
@@ -65,12 +64,7 @@ ggplot(datos, aes(x = IMC)) +
 moda_obesidad <- names(which.max(table(datos$Obesity)))
 
 ```
-
-
-
-corroborando que la población efectivamente está por encima de los valores de imc considerados normales
-
-
+Estadistica descriptiva
 ```{r}
 
 #Estadistica descriptiva
@@ -129,7 +123,7 @@ kable(estadisticas_pob, caption = "Estadísticas Descriptivas") %>%
   kable_styling(bootstrap_options = c("striped", "hover"))
 
 ```
-
+Muestreo
 ```{r}
 #MUESTREO
 
@@ -143,13 +137,13 @@ bootstrap_media <- function(data, n_muestra) {
 }
 
 
-# Realizar 1000 repeticiones del muestreo bootstrap para la edad
+# Realizar 100 repeticiones del muestreo bootstrap para la edad
 media_edad_muestra <- replicate(100, bootstrap_media(datos$Age, n_muestra))
 
-# Realizar 1000 repeticiones del muestreo bootstrap para el peso
+# Realizar 100 repeticiones del muestreo bootstrap para el peso
 media_peso_muestra <- replicate(100, bootstrap_media(datos$Weight, n_muestra))
 
-# Realizar 1000 repeticiones del muestreo bootstrap para el imc
+# Realizar 100 repeticiones del muestreo bootstrap para el imc
 media_imc_muestra <- replicate(100, bootstrap_media(datos$IMC, n_muestra))
 
 #OBSERVANDO LA MUESTRA
@@ -158,21 +152,22 @@ media_imc_muestra <- replicate(100, bootstrap_media(datos$IMC, n_muestra))
 hist(media_edad_muestra, breaks = 30, main = "Distribución Bootstrap de la Media de Edad", xlab = "Media de Edad")
 
 ```
-
+Histogramas de las muestras
+Peso
 ```{r}
 
 # Histograma de la distribución bootstrap de la media de peso
 hist(media_peso_muestra, breaks = 30, main = "Distribución Bootstrap de la Media de Peso", xlab = "Media de Peso")
 
 ```
-
+IMC
 ```{r}
 
 # Histograma de la distribución bootstrap de la media de imc
 hist(media_imc_muestra, breaks = 30, main = "Distribución Bootstrap de la Media del IMC", xlab = "Media del IMC")
 
 ```
-
+Pruebas t (para saber si hay diferencia entre la muestra y la población)
 ```{r}
 
 #Analisis de la muestra
@@ -184,7 +179,39 @@ t.test(media_imc_muestra, mu = media_imc_pob)
 t.test(media_edad_muestra, mu = media_edad_pob)
 t.test(media_peso_muestra, mu = media_peso_pob)
 ```
+Cambios en valor de P segun el tamaño de n
+```{r}
+# Función para realizar pruebas t repetidas para diferentes tamaños de muestra y extraer valores p
+p_value_vs_sample_size <- function(data, population_mean, variable, min_size, max_size, step, seed) {
+  set.seed(123)
+  p_values <- numeric()
+  sample_sizes <- seq(min_size, max_size, by = step)
+  
+  for (n in sample_sizes) {
+    sample_means <- replicate(1000, mean(sample(data[[variable]], size = n, replace = TRUE)))
+    t_test_result <- t.test(sample_means, mu = population_mean)
+    p_values <- c(p_values, t_test_result$p.value)
+  }
+  
+  #data frame para gaficar
+  df <- data.frame(sample_size = sample_sizes, p_value = p_values)
+  return(df)
+}
 
+#IMC
+df_imc <- p_value_vs_sample_size(datos, media_imc_pob, "IMC", 10, 800, 50, seed = 123)
+
+# Plotting
+ggplot(df_imc, aes(x = sample_size, y = p_value)) +
+  geom_line() +
+  geom_point() +
+  labs(x = "Tamaño de muestra", y = "p-value", title = "p-value vs. Tamaño de muestra para IMC") +
+  theme_classic()
+
+```
+
+ANOVA
+Obecidad vs IMC
 ```{r}
 
 #Obesity vs IMC
@@ -200,7 +227,7 @@ ggplot(datos, aes(x = Obesity, y = IMC)) +
   labs(x = "Obecidad", y = "IMC")
   
 ```
-
+Consumo de almientos entre comidas vs IMC
 ```{r}
 # ANOVA
 caecvsimc_anova <- aov(IMC ~ CAEC, data = datos)
@@ -214,7 +241,7 @@ ggplot(datos, aes(x = CAEC, y = IMC)) +
   labs(x = "Consumo de alimentos entre comidas", y = "IMC")
 
 ```
-
+Consumo de alcohol vs IMC
 ```{r}
 
 #consumo de alcohol vs imc
@@ -230,7 +257,7 @@ ggplot(datos, aes(x = CALC, y = IMC)) +
   labs(x = "Consumo de alcohol", y = "IMC")
   
 ```
-  
+  MEtodo de transporte vs IMC
 ```{r}
 
 #Metodo de transporte vs imc
@@ -246,9 +273,8 @@ ggplot(datos, aes(x = MTRANS, y = IMC)) +
   labs(x = "Medio de transporte", y = "IMC")
 
 ```
-
-
-
+Regresion Lineal
+Consumo de Agua vs IMC
 ```{r}
 
 # Regresión lineal con múltiples variables
@@ -270,7 +296,8 @@ ggplot(datos, aes(x = CH2O, y = IMC)) +
   labs(x = "Consumo diario de agua (CH2O)", y = "IMC", title = "Relación entre CH2O e IMC")
   
 ```
-
+Correlacion
+Numero de comidas principales vs IMC
 ```{r}
 #correlación
 
@@ -288,7 +315,7 @@ ggplot(datos, aes(x = NCP, y = IMC)) +
 
 #En el grafico es complicado de observar, quizá por la baja cantidad en cuanto a posibles alimentos y al ruido de los datos generados.
 ```
-
+Prueba t IMC por genero
 ```{r}
 
 #prueba t
