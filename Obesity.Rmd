@@ -55,7 +55,7 @@ ggplot(datos, aes(x = IMC)) +
   theme(plot.title = element_text(hjust = 0.5))
 
 ```
-Obecity
+Obesity
 ```{r}
 
 #Del histograma de IMC parece que la población esta por encima de los valores considerados normales.
